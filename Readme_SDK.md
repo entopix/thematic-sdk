@@ -2,7 +2,7 @@
 
 The Python SDK to use the Thematic API is distributed with the following artifacts:
 
-- rest_interface.py, an SDK for the API written in Python
+- thematic.py, an SDK for the API written in Python
 - config.ini, a sample config file containing settings and parameters for the API
 
 These files are helpful in understanding how to call the API and how to perform its different functions.
@@ -10,12 +10,12 @@ The following sections explain how to log in, how to process different types of 
 
 ##  Initialising the SDK
 
-Assuming that API base URL, username and password are stored in config.ini, use the following code to initialise the REST interface of the API:
+Assuming that API base URL, username and password are stored in config.ini, use the following code to initialise the Thematic interface of the API:
 
 ```
 cfg = ConfigParser.ConfigParser()
 cfg.read('config.ini')
-rest_if = rest_interface( cfg.get('server', 'base_url'), cfg.get('server', 'username'), cfg.get('server', 'password'))
+thematic_instance = Thematic( cfg.get('server', 'base_url'), cfg.get('server', 'username'), cfg.get('server', 'password'))
 ```
 
 ## Analysing Surveys
@@ -23,7 +23,7 @@ rest_if = rest_interface( cfg.get('server', 'base_url'), cfg.get('server', 'user
 To analyse a Survey Instance, a new survey needs creating:
 
 ```
-survey_info = rest_if.create_survey(cfg.get('survey', 'name'),
+survey_info = thematic_instance.create_survey(cfg.get('survey', 'name'),
                                 cfg.get('survey', 'total_columns'),
                                 json.loads(cfg.get('survey', 'columns')),
                                 cfg.get('survey', 'has_header'),
@@ -51,14 +51,14 @@ this file to the job creating stage, the next method, **wait_for_job_completion*
 
 ```
 filename = cfg.get('modelset', 'initialfile')
-job_id = rest_if.run_job( survey_id, filename )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.run_job( survey_id, filename )
+thematic_instance.wait_for_job_completion( job_id )
 ```
 
 The following snippet shows how to retrieve the results of a job, which completes the analysis and lets you save the content on disk for inspection: 
 
 ```
-results = rest_if.retrieve_results( job_id )
+results = thematic_instance.retrieve_results( job_id )
 if not results:
     raise Exception ("Failed to retrieve results")
 base_filename, extension = os.path.splitext(os.path.basename(filename))
@@ -77,7 +77,7 @@ resulting_files.append( themes_filename )
 To tweak the analysis by editing the concepts file, first retrieve the automatically generated concepts file, and save it on disk for inspection:
 
 ```
-concepts = rest_if.retrieve_concepts( job_id )
+concepts = thematic_instance.retrieve_concepts( job_id )
 concepts_out_filename = "data_out/concepts.json"
 with open( concepts_out_filename, "w" ) as f:
     f.write( concepts )
@@ -89,14 +89,14 @@ After the concept file has been reviewed and, if necessary, updated, run a new j
 concepts_out_filename = cfg.get('modelset', 'conceptsfile')
 survey_id = cfg.get('modelset','survey_id')
 previous_job = cfg.get('jobs','base_job')
-job_id = rest_if.configure_concepts( survey_id, concepts_out_filename, previous_job )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.configure_concepts( survey_id, concepts_out_filename, previous_job )
+thematic_instance.wait_for_job_completion( job_id )
 ```
 
 Similarly, the SDK allows to retrieve the themes as follows: 
 
 ```
-themes = rest_if.retrieve_themes( job_id ) )
+themes = thematic_instance.retrieve_themes( job_id ) )
 if not themes:
     raise Exception ("Failed to retrieve themes")
 
@@ -112,15 +112,15 @@ After reviewing and modifying this file, a new Analysis using that file can be r
 themes_out_filename = cfg.get('modelset', 'themesfile')
 survey_id = cfg.get('modelset','survey_id')
 previous_job = cfg.get('jobs','base_job')
-job_id = rest_if.configure_themes( survey_id, themes_out_filename, previous_job )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.configure_themes( survey_id, themes_out_filename, previous_job )
+thematic_instance.wait_for_job_completion( job_id )
 ```
 
 Finally, as explained above, you can tweak the API Analysis parameters too. By using the SDK, first retrieve them as a dictionary.
  
 ```
 # retrieve parameters
-params = rest_if.retrieve_parameters( job_id ) )
+params = thematic_instance.retrieve_parameters( job_id ) )
 if not params:
     raise Exception ("Failed to retrieve params")
 ```
@@ -130,8 +130,8 @@ After reviewing and modifying the values in the dictionary, a new Analysis using
 ```
 survey_id = cfg.get('modelset','survey_id')
 previous_job = cfg.get('jobs','base_job')
-job_id = rest_if.configure_parameters( survey_id, params, previous_job )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.configure_parameters( survey_id, params, previous_job )
+thematic_instance.wait_for_job_completion( job_id )
 ```
 
 ## Running incremental updates
@@ -141,8 +141,8 @@ the SDK provides the **run_incremental_update** method:
 
 ```
 filename = cfg.get('modelset', 'incremental_update_to_survey')
-job_id = rest_if.run_incremental_update( survey_id, filename )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.run_incremental_update( survey_id, filename )
+thematic_instance.wait_for_job_completion( job_id )
 
 ```
 ## Translating survey responses
@@ -151,7 +151,7 @@ In order to translate survey responses, simply use the **run_translation** metho
 
 ```
 filename = cfg.get('modelset', 'foreign_survey')
-job_id = rest_if.run_translations( survey_id, filename )
-rest_if.wait_for_job_completion( job_id )
+job_id = thematic_instance.run_translations( survey_id, filename )
+thematic_instance.wait_for_job_completion( job_id )
 ```
 
