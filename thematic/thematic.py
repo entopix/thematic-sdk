@@ -59,9 +59,11 @@ class Thematic:
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
 
-    def run_incremental_update( self, survey_id, csv_filename ):
+    def run_incremental_update( self, survey_id, csv_filename, previous_job_id=None ):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = { 'survey_id' : survey_id, 'job_type' : 'apply' }
+        if previous_job_id:
+            payload["previous_job_id"] = previous_job_id
         r = requests.post(self.base_url+"/create_job",
                         headers = {'X-API-Authentication' : self.api_key},
                         files=files,
@@ -155,6 +157,15 @@ class Thematic:
         if "state" not in response["data"]:
             raise Exception("get_job_status: Bad Response")
         return response["data"]
+
+
+    def get_job_logs( self, job_id ):
+        r = requests.get(self.base_url+"/job/"+job_id+"/log",
+                    headers = {'X-API-Authentication' : self.api_key}
+                    )
+        response = r.text
+        return response
+
 
     def get_charts( self, job_id, columns, format="json", compare_job_id=None, top_n=None, include_ignored=False):
         payload = { 'columns' :json.dumps(columns), "format" : format, "compare_job_id" : compare_job_id, "top_n" : top_n, "include_ignored" : include_ignored }
