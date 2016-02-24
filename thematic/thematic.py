@@ -59,6 +59,14 @@ class Thematic:
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
 
+    def cancel_job( self, job_id ):
+        r = requests.post(self.base_url+"/job/"+job_id+"/cancel",
+                    headers = {'X-API-Authentication' : self.api_key}
+                    )
+        response = r.text
+        print r.text
+        return response
+
     def run_incremental_update( self, survey_id, csv_filename, previous_job_id=None ):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = { 'survey_id' : survey_id, 'job_type' : 'apply' }
@@ -189,17 +197,26 @@ class Thematic:
                 break
             elif status == "errored":
                 raise Exception("wait_for_job_completion: Job errored and did not complete")
+            elif status == "canceled":
+                raise Exception("wait_for_job_completion: Job was canceled")
 
             time.sleep(2)
 
-    def list_jobs( self):
+    def list_jobs( self, survey_id=None, job_type=None ):
+        payload = { }
+        if survey_id:
+            payload['survey_id'] = survey_id
+        if job_type:
+            payload['job_type'] = job_type
+        
         r = requests.get(self.base_url+"/jobs/",
-                    headers = {'X-API-Authentication' : self.api_key}
+                    headers = {'X-API-Authentication' : self.api_key},
+                    params=payload
                     )
         if r.status_code != 200:
             return None
         response = json.loads(r.text)
-        return response["data"]
+        return response["data"]["jobs"]
 
 
     def retrieve_csv( self, job_id ):
