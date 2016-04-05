@@ -3,19 +3,26 @@
 The Python SDK to use the Thematic API is distributed with the following artifacts:
 
 - thematic.py, an SDK for the API written in Python
-- config.ini, a sample config file containing settings and parameters for the API
+- example, a simple example of how to use the api. This example uses a config file containing settings and parameters for the API
 
 These files are helpful in understanding how to call the API and how to perform its different functions.
 The following sections explain how to log in, how to process different types of surveys, how to tweak the Model, and finally how to perform incremental updates.
+
+## Python version
+The example and sdk are written for Python 3.
+
+## Installing requirements
+The thirdparty requirements are outlined in the file requirements.txt and can be installed using 
+```
+pip install -r requirements.txt
+```
 
 ##  Initialising the SDK
 
 Assuming that API base URL, username and password are stored in config.ini, use the following code to initialise the Thematic interface of the API:
 
 ```
-cfg = ConfigParser.ConfigParser()
-cfg.read('config.ini')
-thematic_instance = Thematic( cfg.get('server', 'base_url'), cfg.get('server', 'username'), cfg.get('server', 'password'))
+thematic_instance = Thematic( server_url, username, password )
 ```
 
 ## Analysing Surveys
@@ -23,14 +30,18 @@ thematic_instance = Thematic( cfg.get('server', 'base_url'), cfg.get('server', '
 To analyse a Survey Instance, a new survey needs creating:
 
 ```
-survey_info = thematic_instance.create_survey(cfg.get('survey', 'name'),
-                                cfg.get('survey', 'total_columns'),
-                                json.loads(cfg.get('survey', 'columns')),
-                                cfg.get('survey', 'has_header'),
-                                cfg.get('survey', 'modelset_id'))
+survey_name = "Customer Experience Survey"
+total_columns = 5
+columns = [[{"index": 2, "name": "NPS Comment"}]]
+has_header = True
+
+survey_info = thematic_instance.create_survey(survey_name,
+                                total_columns,
+                                columns,
+                                has_header)
 ```
 
-The last element, model_id, is optional. Use it to reference a Model Set from another survey instance, such as the first instance of a repeating survey.
+There is an optional parameter modelset_id. Use it to reference a Model Set from another survey instance, such as the first instance of a repeating survey.
 
 The format that survey columns should be a list of lists of dictionaries. Details of each:
 * outer list: this outer definition is just to contain all items
@@ -50,7 +61,7 @@ Once a survey id is known, the SDK allows to pass a path to a file containing su
 this file to the job creating stage, the next method, **wait_for_job_completion**, halts the program until the job is completed:
 
 ```
-filename = cfg.get('modelset', 'initialfile')
+filename = 'input.csv'
 job_id = thematic_instance.run_job( survey_id, filename )
 thematic_instance.wait_for_job_completion( job_id )
 ```
@@ -66,10 +77,8 @@ csv_filename = os.path.join("data_out/",base_filename+"_output.csv")
 themes_filename = os.path.join("data_out/",base_filename+"_themes.json")
 with open( csv_filename, "w" ) as f:
     f.write( results['csv'] )
-resulting_files.append( csv_filename )
 with open( themes_filename, "w" ) as f:
     f.write( results['themes'] )
-resulting_files.append( themes_filename )
 ```
 
 ## Tweaking Analysis
