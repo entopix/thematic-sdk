@@ -9,7 +9,7 @@ These files are helpful in understanding how to call the API and how to perform 
 The following sections explain how to log in, how to process different types of surveys, how to tweak the Model, and finally how to perform incremental updates.
 
 ## Python version
-The example and sdk are written for Python 3.
+The example and sdk are written for Python 2.7.
 
 ## Installing requirements
 The thirdparty requirements are outlined in the file requirements.txt and can be installed using 
@@ -96,11 +96,11 @@ After the concept file has been reviewed and, if necessary, updated, run a new j
 
 ```
 concepts_out_filename = cfg.get('modelset', 'conceptsfile')
-survey_id = cfg.get('modelset','survey_id')
-previous_job = cfg.get('jobs','base_job')
+previous_job = job_id
 job_id = thematic_instance.configure_concepts( survey_id, concepts_out_filename, previous_job )
 thematic_instance.wait_for_job_completion( job_id )
 ```
+You will need to track this job_id to use as an input into later stages. This can be done by writing it into the configuration file. Doing so will mean you will not need to run the configure concepts job again to use its output.
 
 Similarly, the SDK allows to retrieve the themes as follows: 
 
@@ -119,8 +119,7 @@ After reviewing and modifying this file, a new Analysis using that file can be r
 
 ```
 themes_out_filename = cfg.get('modelset', 'themesfile')
-survey_id = cfg.get('modelset','survey_id')
-previous_job = cfg.get('jobs','base_job')
+previous_job = job_id
 job_id = thematic_instance.configure_themes( survey_id, themes_out_filename, previous_job )
 thematic_instance.wait_for_job_completion( job_id )
 ```
@@ -138,7 +137,7 @@ After reviewing and modifying the values in the dictionary, a new Analysis using
 
 ```
 survey_id = cfg.get('modelset','survey_id')
-previous_job = cfg.get('jobs','base_job')
+previous_job = job_id
 job_id = thematic_instance.configure_parameters( survey_id, params, previous_job )
 thematic_instance.wait_for_job_completion( job_id )
 ```
@@ -149,17 +148,17 @@ Once you have created a survey, run the initial Analysis job and simply want to 
 the SDK provides the **run_incremental_update** method:
 
 ```
-filename = cfg.get('modelset', 'incremental_update_to_survey')
+filename = 'incremental_update.csv'
 job_id = thematic_instance.run_incremental_update( survey_id, filename )
 thematic_instance.wait_for_job_completion( job_id )
 
 ```
 ## Translating survey responses
 
-In order to translate survey responses, simply use the **run_translation** method:
+In order to translate survey responses, simply use the **run_translation** method. This assumes that a survey has already been set up to indicate which columns require translation.
 
 ```
-filename = cfg.get('modelset', 'foreign_survey')
+filename = 'foreign_language_responses.csv'
 job_id = thematic_instance.run_translations( survey_id, filename )
 thematic_instance.wait_for_job_completion( job_id )
 ```
