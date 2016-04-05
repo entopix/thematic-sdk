@@ -24,8 +24,6 @@ Almost all API endpoints use header based authentication and expect a header:
 
 To retrieve the access key, username and password can be used instead, by calling [/v1/login](#!/User/post_v1_login)
 
-You can also just retrieve the key without logging in by calling [/v1/retrieve_key](#!/User/get_v1_retrieve_key).
-
 ## Analysis of surveys
 
 Assuming you have a One-off survey in a new area, or you have the first instance of a survey that may be repeated, 
