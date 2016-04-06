@@ -1,6 +1,6 @@
 # Python SDK
 
-The Python SDK to use the Thematic API is distributed with the following artifacts:
+The Python SDK to use the Thematic API is distributed at [https://github.com/entopix/thematic-sdk](https://github.com/entopix/thematic-sdk) with the following artifacts:
 
 - thematic.py, an SDK for the API written in Python
 - example, a simple example of how to use the api. This example uses a config file containing settings and parameters for the API
