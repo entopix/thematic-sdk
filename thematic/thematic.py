@@ -256,6 +256,7 @@ class Thematic:
                        params={'nps_column' : nps_column}
                   )
         if r.status_code != 200:
+            print("Retrieve excel failed:"+r.text)
             return None
         return r.content
 
