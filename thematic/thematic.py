@@ -175,8 +175,10 @@ class Thematic:
         return response
 
 
-    def get_charts( self, job_id, columns, format="json", compare_job_id=None, top_n=None, include_ignored=False):
+    def get_charts( self, job_id, columns, format="json", compare_job_id=None, top_n=None, include_ignored=False,filters=None):
         payload = { 'columns' :json.dumps(columns), "format" : format, "compare_job_id" : compare_job_id, "top_n" : top_n, "include_ignored" : include_ignored }
+        if filters:
+            payload['filters'] = json.dumps(filters)
         r = requests.get(self.base_url+"/job/"+job_id+"/charts/",
                     headers = {'X-API-Authentication' : self.api_key},
                     params=payload
