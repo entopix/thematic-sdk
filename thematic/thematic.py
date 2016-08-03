@@ -188,7 +188,8 @@ class Thematic:
 
     def wait_for_job_completion( self, job_id ):
         ready = False
-        print("Waiting for results...")
+        print("Waiting for results of job "+job_id+" ...")
+        current_status = "unknown"
         while not ready:
             job_details = self.get_job_details( job_id )
             status = job_details['state']
@@ -199,8 +200,12 @@ class Thematic:
                 raise Exception("wait_for_job_completion: Job errored and did not complete")
             elif status == "canceled":
                 raise Exception("wait_for_job_completion: Job was canceled")
+            elif status != current_status:
+                current_status = status
+                print("\tStatus is "+current_status)
 
             time.sleep(2)
+        print("\tStatus is finished")
 
     def list_jobs( self, survey_id=None, job_type=None ):
         payload = { }
