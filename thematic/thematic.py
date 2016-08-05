@@ -64,7 +64,7 @@ class Thematic:
                     headers = {'X-API-Authentication' : self.api_key}
                     )
         response = r.text
-        print r.text
+        print( r.text )
         return response
 
     def run_incremental_update( self, survey_id, csv_filename, previous_job_id=None ):
