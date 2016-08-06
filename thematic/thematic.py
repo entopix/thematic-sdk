@@ -5,9 +5,14 @@ import time
 import requests
 
 class Thematic:
-    def __init__(self, base_url, username, password):
+    @classmethod
+    def FromLogin(self, base_url, username, password):
         self.base_url = base_url
-        self.retrieve_apikey( username, password )
+        # create with unknown key
+        thematic = Thematic(base_url,'')
+        # login which will fill in key
+        thematic.retrieve_apikey( username, password )
+        return thematic
 
     def __init__(self, base_url, api_key):
         self.base_url = base_url
