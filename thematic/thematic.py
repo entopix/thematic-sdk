@@ -76,7 +76,7 @@ class Thematic:
         print( r.text )
         return response
 
-    def run_incremental_update( self, survey_id, csv_filename, previous_job_id=None ):
+    def run_incremental_update( self, survey_id, csv_filename, previous_job_id ):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = { 'survey_id' : survey_id, 'job_type' : 'apply' }
         if previous_job_id:
