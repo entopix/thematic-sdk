@@ -51,9 +51,8 @@ class Thematic:
             raise Exception("create_survey: Bad Response")
         return response["data"]
 
-
-    def run_job( self, survey_id, csv_filename, previous_job_id=None ):
-        files = {'csv_file': open(csv_filename, 'rb')}
+    def run_job_with_file_object( self, survey_id, csv_file_obj, previous_job_id=None ):
+        files = {'csv_file': csv_file_obj}
         payload = { 'survey_id' : survey_id }
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
@@ -67,6 +66,11 @@ class Thematic:
         if "jobid" not in response["data"]:
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
+
+    def run_job( self, survey_id, csv_filename, previous_job_id=None ):
+        with open(csv_filename, 'rb') as csv_file_obj:
+            return self.run_job_with_file_object(survey_id, csv_file_obj, previous_job_id=previous_job_id)
+        return None
 
     def cancel_job( self, job_id ):
         r = requests.post(self.base_url+"/job/"+job_id+"/cancel",
@@ -82,8 +86,8 @@ class Thematic:
         response = r.text
         return response
 
-    def run_incremental_update( self, survey_id, csv_filename, previous_job_id ):
-        files = {'csv_file': open(csv_filename, 'rb')}
+    def run_incremental_update_with_file_object( self, survey_id, csv_file_obj, previous_job_id ):
+        files = {'csv_file': csv_file_obj}
         payload = { 'survey_id' : survey_id, 'job_type' : 'apply' }
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
@@ -97,6 +101,11 @@ class Thematic:
         if "jobid" not in response["data"]:
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
+
+    def run_incremental_update( self, survey_id, csv_filename, previous_job_id ):
+        with open(csv_filename, 'rb') as csv_file_obj:
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id)
+        return None
 
     def run_translations( self, survey_id, csv_filename ):
         files = {'csv_file': open(csv_filename, 'rb')}
