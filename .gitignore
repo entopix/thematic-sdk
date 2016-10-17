@@ -2,3 +2,5 @@ env/
 data/
 data_out/
 *.pyc
+
+*.egg-info/
