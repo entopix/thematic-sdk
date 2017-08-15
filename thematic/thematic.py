@@ -4,7 +4,7 @@ import time
 #pip
 import requests
 
-class Thematic:
+class Thematic(object):
     @classmethod
     def FromLogin(self, base_url, username, password):
         self.base_url = base_url
