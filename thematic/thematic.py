@@ -281,6 +281,13 @@ class Thematic(object):
             return None
         return r.text.encode('utf-8')
 
+    def retrieve_stopwords( self, job_id ):
+        r = requests.get(self.base_url+"/job/"+job_id+"/stopwords/",
+                    headers = {'X-API-Authentication' : self.api_key}
+                    )
+        if r.status_code != 200:
+            return None
+        return r.text.encode('utf-8')
 
     def retrieve_concepts( self, job_id ):
         r = requests.get(self.base_url+"/job/"+job_id+"/concepts/",
