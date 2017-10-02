@@ -166,6 +166,21 @@ class Thematic(object):
             raise Exception("configure_language_model: Bad Response")
         return response["data"]["jobid"]
 
+    def configure_stopwords( self, stopwords_filename, previous_job_id ):
+        files = {'stopwords_file': open(stopwords_filename, 'rb')}
+        payload = { }
+
+        r = requests.post(self.base_url+"/job/"+previous_job_id+"/stopwords",
+                        headers = {'X-API-Authentication' : self.api_key},
+                        files=files,
+                        data=payload)
+        response = json.loads(r.text)
+        if response["status"] != "success":
+            raise Exception("configure_stopwords: Failed to create configuration job ("+response["error"]["message"]+")")
+        if "jobid" not in response["data"]:
+            raise Exception("configure_stopwords: Bad Response")
+        return response["data"]["jobid"]
+
     def configure_parameters( self, parameters, previous_job_id ):
         payload = parameters
 
