@@ -28,6 +28,7 @@ class Thematic(object):
         if response["status"] != "success":
             raise Exception("retrieve_apikey: Failed to login ("+response["error"]["message"]+")")
         self.api_key = response["data"]["api_key"]
+        self.login_cookie = r.headers['Set-cookie']
 
 
 
