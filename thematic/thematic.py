@@ -5,6 +5,7 @@ import time
 import requests
 
 class Thematic(object):
+    num_retries = 3
     @classmethod
     def FromLogin(self, base_url, username, password):
         self.base_url = base_url
@@ -232,8 +233,18 @@ class Thematic(object):
         ready = False
         print("Waiting for results of job "+job_id+" ...")
         current_status = "unknown"
+        num_exceptions = 0
         while not ready:
-            job_details = self.get_job_details( job_id )
+            # protect the endpoint to get job details against transmission errors (because we call it so much)
+            try:
+                job_details = self.get_job_details( job_id )
+                num_exceptions = 0
+            except Exception as e:
+                if num_exceptions >= self.num_retries:
+                    num_exceptions += 1
+                else:
+                    raise e
+
             status = job_details['state']
             if status == "finished":
                 ready = True
