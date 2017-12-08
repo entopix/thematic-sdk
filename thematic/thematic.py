@@ -5,7 +5,7 @@ import time
 import requests
 
 class Thematic(object):
-    num_retries = 3
+    num_retries = 50
     @classmethod
     def FromLogin(self, base_url, username, password):
         self.base_url = base_url
