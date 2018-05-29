@@ -244,7 +244,7 @@ class Thematic(object):
                 "get_charts: Failed to get charts ("+response["error"]["message"]+")")
         return response["data"]
 
-    def wait_for_job_completion(self, job_id):
+    def wait_for_job_completion(self, job_id, check_continue=None):
         ready = False
         print("Waiting for results of job "+job_id+" ...")
         current_status = "unknown"
@@ -282,6 +282,10 @@ class Thematic(object):
             elif status != current_status:
                 current_status = status
                 print("\tStatus is "+current_status)
+
+            # check if we should still be waiting for this job
+            if check_continue and not check_continue():
+                break
 
             time.sleep(2)
         print("\tStatus is finished")
