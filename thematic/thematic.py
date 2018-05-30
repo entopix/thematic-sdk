@@ -285,7 +285,7 @@ class Thematic(object):
 
             # check if we should still be waiting for this job
             if check_continue and not check_continue():
-                break
+                raise Exception('wait_for_job_completion: Interrupted')
 
             time.sleep(2)
         print("\tStatus is finished")
