@@ -312,37 +312,39 @@ class Thematic(object):
         response = json.loads(r.text)
         return response["data"]["jobs"]
 
-    def retrieve_csv(self, job_id):
-        r = requests.get(self.base_url+"/job/"+job_id+"/csv/",
-                         headers={'X-API-Authentication': self.api_key}
-                         )
-        if r.status_code != 200:
-            return None
-        return r.text.encode('utf-8')
+    def _internal_request_to_text_or_file(self, url, file_obj):
+        if file_obj:
+            r = requests.get(
+                url, headers={'X-API-Authentication': self.api_key}, stream=True)
+            if r.status_code != 200:
+                return False
+            for chunk in r.iter_content(chunk_size=512):
+                if chunk:  # filter out keep-alive new chunks
+                    file_obj.write(chunk)
+            return True
 
-    def retrieve_themes(self, job_id):
-        r = requests.get(self.base_url+"/job/"+job_id+"/themes/",
-                         headers={'X-API-Authentication': self.api_key}
-                         )
-        if r.status_code != 200:
-            return None
-        return r.text.encode('utf-8')
+        else:
+            r = requests.get(
+                url, headers={'X-API-Authentication': self.api_key})
+            if r.status_code != 200:
+                return None
+            return r.text.encode('utf-8')
 
-    def retrieve_stopwords(self, job_id):
-        r = requests.get(self.base_url+"/job/"+job_id+"/stopwords/",
-                         headers={'X-API-Authentication': self.api_key}
-                         )
-        if r.status_code != 200:
-            return None
-        return r.text.encode('utf-8')
+    def retrieve_csv(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/csv/"
+        return _internal_request_to_text_or_file(url, file_obj)
 
-    def retrieve_concepts(self, job_id):
-        r = requests.get(self.base_url+"/job/"+job_id+"/concepts/",
-                         headers={'X-API-Authentication': self.api_key}
-                         )
-        if r.status_code != 200:
-            return None
-        return r.text.encode('utf-8')
+    def retrieve_themes(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/themes/"
+        return _internal_request_to_text_or_file(url, file_obj)
+
+    def retrieve_stopwords(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/stopwords/"
+        return _internal_request_to_text_or_file(url, file_obj)
+
+    def retrieve_concepts(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/concepts/"
+        return _internal_request_to_text_or_file(url, file_obj)
 
     def retrieve_excel(self, job_id, column, nps_column):
         r = requests.get(self.base_url+"/job/"+job_id+"/excel/"+str(column),
