@@ -2,8 +2,11 @@
 import json
 import time
 import datetime
+import logging
 # pip
 import requests
+
+log = logging.getLogger(__name__)
 
 
 class Thematic(object):
@@ -247,12 +250,13 @@ class Thematic(object):
     def wait_for_job_completion(self, job_id, check_continue=None):
         ready = False
         print("Waiting for results of job "+job_id+" ...")
+        log.info("Waiting for results of job "+job_id+" ...")
         current_status = "unknown"
         num_exceptions = 0
         start_time = time.time()
         process_start_time = 0
         end_time = 0
-        print("\tStarted at {}".format(datetime.datetime.now()))
+        log.info("\tStarted at {}".format(datetime.datetime.now()))
         while not ready:
             # protect the endpoint to get job details against transmission errors (because we call it so much)
             try:
@@ -267,21 +271,22 @@ class Thematic(object):
             status = job_details['state']
             if status == "finished":
                 ready = True
-                print("\tFinished at {}".format(datetime.datetime.now()))
+                log.info("\tFinished at {}".format(datetime.datetime.now()))
                 end_time = time.time()
                 break
             elif status == "in_progress":
                 process_start_time = time.time()
             elif status == "errored":
-                print("\tErrored at {}".format(datetime.datetime.now()))
+                log.error("\tErrored at {}".format(datetime.datetime.now()))
                 raise Exception(
                     "wait_for_job_completion: Job errored and did not complete")
             elif status == "canceled":
-                print("\tCancelled at {}".format(datetime.datetime.now()))
+                log.info("\tCancelled at {}".format(datetime.datetime.now()))
                 raise Exception("wait_for_job_completion: Job was canceled")
             elif status != current_status:
                 current_status = status
                 print("\tStatus is "+current_status)
+                log.info("\tStatus is "+current_status)
 
             # check if we should still be waiting for this job
             if check_continue and not check_continue():
@@ -289,9 +294,10 @@ class Thematic(object):
 
             time.sleep(2)
         print("\tStatus is finished")
+        log.info("\tStatus is finished")
         if process_start_time:
             # only prints if we spent time processing
-            print("\tWaited {}s in queue and spent {}s processing".format(
+            log.info("\tWaited {}s in queue and spent {}s processing".format(
                 datetime.timedelta(seconds=(process_start_time-start_time)),
                 datetime.timedelta(seconds=(end_time-process_start_time)))
             )
@@ -313,6 +319,7 @@ class Thematic(object):
         return response["data"]["jobs"]
 
     def _internal_request_to_text_or_file(self, url, file_obj):
+        log.info('getting {}'.format(url))
         if file_obj:
             r = requests.get(
                 url, headers={'X-API-Authentication': self.api_key}, stream=True)
@@ -327,6 +334,8 @@ class Thematic(object):
             r = requests.get(
                 url, headers={'X-API-Authentication': self.api_key})
             if r.status_code != 200:
+                log.error('Failed to retrieve. Code {} message {}'.format(
+                    r.status_code, r.text))
                 return None
             return r.text.encode('utf-8')
 
@@ -352,7 +361,7 @@ class Thematic(object):
                          params={'nps_column': nps_column}
                          )
         if r.status_code != 200:
-            print("Retrieve excel failed:"+r.text)
+            log.error("Retrieve excel failed:"+r.text)
             return None
         return r.content
 
