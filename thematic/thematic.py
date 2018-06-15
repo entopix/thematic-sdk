@@ -262,7 +262,7 @@ class Thematic(object):
                 if num_exceptions >= self.num_retries:
                     num_exceptions += 1
                 else:
-                    raise e
+                    raise Exception('Failure waiting for job completion after {} tries: {}'.format(num_exceptions,e)
 
             status = job_details['state']
             if status == "finished":
