@@ -311,6 +311,18 @@ class Thematic(object):
         url = self.base_url+"/job/"+job_id+"/concepts/"
         return self._internal_request_to_text_or_file(url, file_obj)
 
+    def retrieve_nouns(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/nouns/"
+        return self._internal_request_to_text_or_file(url, file_obj)
+
+    def retrieve_verbs(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/verbs/"
+        return self._internal_request_to_text_or_file(url, file_obj)
+
+    def retrieve_adjectives(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/adjectives/"
+        return self._internal_request_to_text_or_file(url, file_obj)
+
     def retrieve_excel(self, job_id, column, nps_column):
         r = requests.get(self.base_url+"/job/"+job_id+"/excel/"+str(column),
                          headers={'X-API-Authentication': self.api_key},
