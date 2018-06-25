@@ -95,19 +95,28 @@ class Thematic(object):
         response = r.text
         return response
 
+    def _run_post_request_with_json_response(self, url, files, data):
+        r = requests.post(self.base_url+"/create_job",
+                          headers={'X-API-Authentication': self.api_key},
+                          files=files,
+                          data=data)
+        if r.status_code != 200:
+            raise Exception('Failed with code {} and reason: {}'.format(
+                r.status_code, r.text))
+        response = json.loads(r.text)
+        if response["status"] != "success":
+            raise Exception(
+                "run_incremental_update: Failed to create job ("+response["error"]["message"]+")")
+        return response
+
     def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id, 'job_type': 'apply'}
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
-        r = requests.post(self.base_url+"/create_job",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "run_incremental_update: Failed to create job ("+response["error"]["message"]+")")
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/create_job", files, payload)
+
         if "jobid" not in response["data"]:
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
@@ -120,92 +129,53 @@ class Thematic(object):
     def run_translations(self, survey_id, csv_filename):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = {'survey_id': survey_id, 'job_type': 'translate'}
-        r = requests.post(self.base_url+"/create_job",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "run_translations: Failed to create job ("+response["error"]["message"]+")")
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/create_job", files, payload)
+
         if "jobid" not in response["data"]:
             raise Exception("run_translations: Bad Response")
         return response["data"]["jobid"]
 
     def configure_concepts(self, concepts_filename, previous_job_id):
         files = {'concepts_file': open(concepts_filename, 'rb')}
-        payload = {}
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/concepts", files, {})
 
-        r = requests.post(self.base_url+"/job/"+previous_job_id+"/concepts",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "configure_concepts: Failed to create configuration job ("+response["error"]["message"]+")")
         if "jobid" not in response["data"]:
             raise Exception("configure_concepts: Bad Response")
         return response["data"]["jobid"]
 
     def configure_themes(self, themes_filename, previous_job_id):
         files = {'themes_file': open(themes_filename, 'rb')}
-        payload = {}
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/themes", files, {})
 
-        r = requests.post(self.base_url+"/job/"+previous_job_id+"/themes",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "configure_themes: Failed to create configuration job ("+response["error"]["message"]+")")
         if "jobid" not in response["data"]:
             raise Exception("configure_themes: Bad Response")
         return response["data"]["jobid"]
 
     def configure_language_model(self, language_model_filename, previous_job_id):
         files = {'model_file': open(language_model_filename, 'rb')}
-        payload = {}
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/language_model", files, {})
 
-        r = requests.post(self.base_url+"/job/"+previous_job_id+"/language_model",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "configure_language_model: Failed to create configuration job ("+response["error"]["message"]+")")
         if "jobid" not in response["data"]:
             raise Exception("configure_language_model: Bad Response")
         return response["data"]["jobid"]
 
     def configure_stopwords(self, stopwords_filename, previous_job_id):
         files = {'stopwords_file': open(stopwords_filename, 'rb')}
-        payload = {}
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/stopwords", files, {})
 
-        r = requests.post(self.base_url+"/job/"+previous_job_id+"/stopwords",
-                          headers={'X-API-Authentication': self.api_key},
-                          files=files,
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "configure_stopwords: Failed to create configuration job ("+response["error"]["message"]+")")
         if "jobid" not in response["data"]:
             raise Exception("configure_stopwords: Bad Response")
         return response["data"]["jobid"]
 
     def configure_parameters(self, parameters, previous_job_id):
-        payload = parameters
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/stopwords", None, parameters)
 
-        r = requests.post(self.base_url+"/job/"+previous_job_id+"/params",
-                          headers={'X-API-Authentication': self.api_key},
-                          data=payload)
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "configure_parameters: Failed to create configuration job ("+response["error"]["message"]+")")
         if "jobid" not in response["data"]:
             raise Exception("configure_parameters: Bad Response")
         return response["data"]["jobid"]
@@ -231,21 +201,6 @@ class Thematic(object):
                          )
         response = r.text
         return response
-
-    def get_charts(self, job_id, columns, format="json", compare_job_id=None, top_n=None, include_ignored=False, filters=None):
-        payload = {'columns': json.dumps(
-            columns), "format": format, "compare_job_id": compare_job_id, "top_n": top_n, "include_ignored": include_ignored}
-        if filters:
-            payload['filters'] = json.dumps(filters)
-        r = requests.get(self.base_url+"/job/"+job_id+"/charts/",
-                         headers={'X-API-Authentication': self.api_key},
-                         params=payload
-                         )
-        response = json.loads(r.text)
-        if response["status"] != "success":
-            raise Exception(
-                "get_charts: Failed to get charts ("+response["error"]["message"]+")")
-        return response["data"]
 
     def wait_for_job_completion(self, job_id, check_continue=None):
         ready = False
