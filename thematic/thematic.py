@@ -96,7 +96,7 @@ class Thematic(object):
         return response
 
     def _run_post_request_with_json_response(self, url, files, data):
-        r = requests.post(self.base_url+"/create_job",
+        r = requests.post(url,
                           headers={'X-API-Authentication': self.api_key},
                           files=files,
                           data=data)
@@ -174,7 +174,7 @@ class Thematic(object):
 
     def configure_parameters(self, parameters, previous_job_id):
         response = self._run_post_request_with_json_response(
-            self.base_url+"/job/"+previous_job_id+"/stopwords", None, parameters)
+            self.base_url+"/job/"+previous_job_id+"/params", None, parameters)
 
         if "jobid" not in response["data"]:
             raise Exception("configure_parameters: Bad Response")
