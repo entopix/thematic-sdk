@@ -145,6 +145,18 @@ class Thematic(object):
             raise Exception("configure_concepts: Bad Response")
         return response["data"]["jobid"]
 
+
+    def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id):
+        files = {'nouns_file': open(nouns_filename, 'rb'),
+                'verbs_file': open(verbs_filename, 'rb'),
+                'adjectives_file': open(adjectives_filename, 'rb')}
+        response = self._run_post_request_with_json_response(
+            self.base_url+"/job/"+previous_job_id+"/word_frequencies", files, {})
+
+        if "jobid" not in response["data"]:
+            raise Exception("configure_word_frequencies: Bad Response")
+        return response["data"]["jobid"]
+
     def configure_themes(self, themes_filename, previous_job_id):
         files = {'themes_file': open(themes_filename, 'rb')}
         response = self._run_post_request_with_json_response(
