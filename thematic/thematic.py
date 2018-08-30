@@ -59,9 +59,11 @@ class Thematic(object):
             raise Exception("create_survey: Bad Response")
         return response["data"]
 
-    def run_job_with_file_object(self, survey_id, csv_file_obj, previous_job_id=None):
+    def run_job_with_file_object(self, survey_id, csv_file_obj, previous_job_id=None,params=None):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id}
+        if params:
+            payload.update(params)
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
         r = requests.post(self.base_url+"/create_job",
@@ -76,9 +78,9 @@ class Thematic(object):
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
 
-    def run_job(self, survey_id, csv_filename, previous_job_id=None):
+    def run_job(self, survey_id, csv_filename, previous_job_id=None,params=None):
         with open(csv_filename, 'rb') as csv_file_obj:
-            return self.run_job_with_file_object(survey_id, csv_file_obj, previous_job_id=previous_job_id)
+            return self.run_job_with_file_object(survey_id, csv_file_obj, previous_job_id=previous_job_id,params=params)
         return None
 
     def cancel_job(self, job_id):
