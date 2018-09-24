@@ -111,9 +111,12 @@ class Thematic(object):
                 "run_incremental_update: Failed to create job ("+response["error"]["message"]+")")
         return response
 
-    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id):
+    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id,disambiguation_columns=None):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id, 'job_type': 'apply'}
+        if disambiguation_columns:
+            payload['job_type'] = 'incremental_data'
+            payload['updated_parameters']['disambiguation_columns'] = disambiguation_columns
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
         response = self._run_post_request_with_json_response(
@@ -123,9 +126,9 @@ class Thematic(object):
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
 
-    def run_incremental_update(self, survey_id, csv_filename, previous_job_id):
+    def run_incremental_update(self, survey_id, csv_filename, previous_job_id,disambiguation_columns=None):
         with open(csv_filename, 'rb') as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id,disambiguation_columns=disambiguation_columns)
         return None
 
     def run_translations(self, survey_id, csv_filename):
