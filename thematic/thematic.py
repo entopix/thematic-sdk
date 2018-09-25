@@ -116,7 +116,7 @@ class Thematic(object):
         payload = {'survey_id': survey_id, 'job_type': 'apply'}
         if disambiguation_columns != None:
             payload['job_type'] = 'incremental_data'
-            payload['updated_parameters']['disambiguation_columns'] = disambiguation_columns
+            payload['updated_parameters'] = {'disambiguation_columns':disambiguation_columns}
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
         response = self._run_post_request_with_json_response(
