@@ -114,7 +114,7 @@ class Thematic(object):
     def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id,disambiguation_columns=None):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id, 'job_type': 'apply'}
-        if disambiguation_columns:
+        if disambiguation_columns != None:
             payload['job_type'] = 'incremental_data'
             payload['updated_parameters']['disambiguation_columns'] = disambiguation_columns
         if previous_job_id:
