@@ -316,6 +316,10 @@ class Thematic(object):
         url = self.base_url+"/job/"+job_id+"/csv/"
         return self._internal_request_to_text_or_file(url, file_obj)
 
+    def retrieve_incremental_csv(self, job_id, file_obj=None):
+        url = self.base_url+"/job/"+job_id+"/incremental_csv/"
+        return self._internal_request_to_text_or_file(url, file_obj)
+
     def retrieve_themes(self, job_id, file_obj=None):
         url = self.base_url+"/job/"+job_id+"/themes/"
         return self._internal_request_to_text_or_file(url, file_obj)
