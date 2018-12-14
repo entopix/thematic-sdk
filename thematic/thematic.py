@@ -59,6 +59,39 @@ class Thematic(object):
             raise Exception("create_survey: Bad Response")
         return response["data"]
 
+    def update_survey(self, survey_id, name=None, total_columns=None, columns=None, has_header=None, modelset_id=None, output_format=None):
+        payload = {}
+        if name:
+            payload['columns'] = name
+        if columns:
+            payload['columns'] = columns
+        if has_header:
+            payload['has_header'] = has_header
+        if total_columns:
+            payload['total_columns'] = total_columns
+        if modelset_id:
+            payload['modelset_id'] = modelset_id
+        if output_format:
+            payload['output_format'] = output_format
+        r = requests.put(self.base_url+"/survey/{}".format(survey_id),
+                          headers={'X-API-Authentication': self.api_key},
+                          data=payload)
+        response = json.loads(r.text)
+        if response["status"] != "success":
+            raise Exception(
+                "update_survey: Failed to create survey ("+response["error"]["message"]+")")
+        return response["data"]
+
+    def get_survey_details(self,survey_id):
+        r = requests.get(self.base_url+"/survey/{}".format(survey_id),
+                          headers={'X-API-Authentication': self.api_key})
+        response = json.loads(r.text)
+        if response["status"] != "success":
+            raise Exception(
+                "update_survey: Failed to create survey ("+response["error"]["message"]+")")
+        return response["data"]
+
+
     def run_job_with_file_object(self, survey_id, csv_file_obj, previous_job_id=None,params=None):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id}
