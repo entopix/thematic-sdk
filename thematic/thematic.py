@@ -113,7 +113,7 @@ class Thematic(object):
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
 
-    def run_job(self, survey_id, csv_filename, themes_file, previous_job_id=None,params=None):
+    def run_job(self, survey_id, csv_filename, themes_file=None, previous_job_id=None,params=None):
         with open(csv_filename, 'rb') as csv_file_obj:
             if themes_file:
                 with open(themes_file, 'rb') as themes_file_obj:
