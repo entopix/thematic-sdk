@@ -9,5 +9,9 @@ setuptools.setup(
     url='http://getthematic.com/',
     description = '',
     packages=setuptools.find_packages(),
-    package_data = {},
+    package_data = {},,
+    install_requires=[
+        "requests>=2.18",
+        "requests[security]"
+    ]
 )
