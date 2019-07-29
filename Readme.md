@@ -15,7 +15,7 @@ to detect and group re-occurring themes and identify sentiment behind the respon
 
 ## Getting ready to start using the API
 
-**First**, make sure you have access to the Thematic API endpoint [https://themes.entopix.com/v1/](https://themes.entopix.com/v1/).
+**First**, make sure you have access to the Thematic API endpoint [https://processor.us.getthematic.com/v1/](https://processor.us.getthematic.com/v1/).
 
 **Second**, make sure you have a username and a password. Contact **support@entopix.com** if you don't have yours.
 
