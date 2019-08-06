@@ -170,9 +170,11 @@ class Thematic(object):
             return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id,disambiguation_columns=disambiguation_columns)
         return None
 
-    def run_translations(self, survey_id, csv_filename):
+    def run_translations(self, survey_id, csv_filename, columns=None):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = {'survey_id': survey_id, 'job_type': 'translate'}
+        if columns:
+            payload['columns'] = columns
         response = self._run_post_request_with_json_response(
             self.base_url+"/create_job", files, payload)
 
