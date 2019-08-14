@@ -297,7 +297,7 @@ class Thematic(object):
             elif status == "canceled":
                 log.info("\tCancelled at {}".format(datetime.datetime.now()))
                 raise Exception("wait_for_job_completion: Job was canceled")
-            elif status != current_status:
+            if status != current_status:
                 current_status = status
                 print("\tStatus is "+current_status)
                 log.info("\tStatus is "+current_status)
