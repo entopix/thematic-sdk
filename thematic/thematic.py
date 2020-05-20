@@ -174,7 +174,7 @@ class Thematic(object):
         files = {'csv_file': open(csv_filename, 'rb')}
         payload = {'survey_id': survey_id, 'job_type': 'translate'}
         if columns:
-            payload['columns'] = columns
+            payload['job_options'] = json.dumps({'columns': columns})
         response = self._run_post_request_with_json_response(
             self.base_url+"/create_job", files, payload)
 
