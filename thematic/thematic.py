@@ -262,7 +262,6 @@ class Thematic(object):
 
     def wait_for_job_completion(self, job_id, check_continue=None):
         ready = False
-        print("Waiting for results of job "+job_id+" ...")
         log.info("Waiting for results of job "+job_id+" ...")
         current_status = "unknown"
         num_exceptions = 0
@@ -299,7 +298,6 @@ class Thematic(object):
                 raise Exception("wait_for_job_completion: Job was canceled")
             if status != current_status:
                 current_status = status
-                print("\tStatus is "+current_status)
                 log.info("\tStatus is "+current_status)
 
             # check if we should still be waiting for this job
@@ -307,7 +305,6 @@ class Thematic(object):
                 raise Exception('wait_for_job_completion: Interrupted')
 
             time.sleep(2)
-        print("\tStatus is finished")
         log.info("\tStatus is finished")
         if process_start_time:
             # only prints if we spent time processing
