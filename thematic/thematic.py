@@ -74,25 +74,24 @@ class Thematic(object):
         if output_format:
             payload['output_format'] = output_format
         r = requests.put(self.base_url+"/survey/{}".format(survey_id),
-                          headers={'X-API-Authentication': self.api_key},
-                          data=payload)
+                         headers={'X-API-Authentication': self.api_key},
+                         data=payload)
         response = json.loads(r.text)
         if response["status"] != "success":
             raise Exception(
                 "update_survey: Failed to create survey ("+response["error"]["message"]+")")
         return response["data"]
 
-    def get_survey_details(self,survey_id):
+    def get_survey_details(self, survey_id):
         r = requests.get(self.base_url+"/survey/{}".format(survey_id),
-                          headers={'X-API-Authentication': self.api_key})
+                         headers={'X-API-Authentication': self.api_key})
         response = json.loads(r.text)
         if response["status"] != "success":
             raise Exception(
                 "update_survey: Failed to create survey ("+response["error"]["message"]+")")
         return response["data"]
 
-
-    def run_job_with_file_objects(self, survey_id, files, previous_job_id=None,params=None):
+    def run_job_with_file_object(self, survey_id, files, previous_job_id=None, params=None):
 
         payload = {'survey_id': survey_id}
         if params:
@@ -111,15 +110,15 @@ class Thematic(object):
             raise Exception("run_job: Bad Response")
         return response["data"]["jobid"]
 
-    def run_job(self, survey_id, csv_filename, themes_file=None, previous_job_id=None,params=None):
+    def run_job(self, survey_id, csv_filename, themes_file=None, previous_job_id=None, params=None):
         with open(csv_filename, 'rb') as csv_file_obj:
             files = {'csv_file': csv_file_obj}
             if themes_file:
                 with open(themes_file, 'rb') as themes_file_obj:
                     files['themes_file'] = themes_file_obj
-                    return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id,params=params)
+                    return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id, params=params)
             else:
-                return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id,params=params)
+                return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id, params=params)
         return None
 
     def create_job_from_artifacts(self, survey_id, artifacts_filename):
@@ -155,12 +154,12 @@ class Thematic(object):
                 "run_incremental_update: Failed to create job ("+response["error"]["message"]+")")
         return response
 
-    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id,disambiguation_columns=None):
+    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, disambiguation_columns=None):
         files = {'csv_file': csv_file_obj}
         payload = {'survey_id': survey_id, 'job_type': 'apply'}
-        if disambiguation_columns != None:
+        if disambiguation_columns is not None:
             payload['job_type'] = 'incremental_data'
-            payload['updated_parameters'] = json.dumps({'disambiguation_columns':disambiguation_columns})
+            payload['updated_parameters'] = json.dumps({'disambiguation_columns': disambiguation_columns})
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
         response = self._run_post_request_with_json_response(
@@ -170,9 +169,9 @@ class Thematic(object):
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
 
-    def run_incremental_update(self, survey_id, csv_filename, previous_job_id,disambiguation_columns=None):
+    def run_incremental_update(self, survey_id, csv_filename, previous_job_id, disambiguation_columns=None):
         with open(csv_filename, 'rb') as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id,disambiguation_columns=disambiguation_columns)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, disambiguation_columns=disambiguation_columns)
         return None
 
     def run_translations(self, survey_id, csv_filename, columns=None):
@@ -196,11 +195,10 @@ class Thematic(object):
             raise Exception("configure_concepts: Bad Response")
         return response["data"]["jobid"]
 
-
     def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id):
         files = {'nouns_file': open(nouns_filename, 'rb'),
-                'verbs_file': open(verbs_filename, 'rb'),
-                'adjectives_file': open(adjectives_filename, 'rb')}
+                 'verbs_file': open(verbs_filename, 'rb'),
+                 'adjectives_file': open(adjectives_filename, 'rb')}
         response = self._run_post_request_with_json_response(
             self.base_url+"/job/"+previous_job_id+"/word_frequencies", files, {})
 
@@ -392,7 +390,7 @@ class Thematic(object):
             raise Exception("Artifacts must be retrieved into a file object")
         url = self.base_url+"/job/"+job_id+"/artifacts/"
         return self._internal_request_to_text_or_file(url, file_obj)
-        
+
     def retrieve_language_model(self, job_id):
         r = requests.get(self.base_url+"/job/"+job_id+"/language_model/",
                          headers={'X-API-Authentication': self.api_key}
