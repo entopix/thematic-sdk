@@ -92,10 +92,8 @@ class Thematic(object):
         return response["data"]
 
 
-    def run_job_with_file_object(self, survey_id, csv_file_obj, themes_file_obj=None, previous_job_id=None,params=None):
-        files = {'csv_file': csv_file_obj}
-        if themes_file_obj:
-            files['themes_file'] = themes_file_obj
+    def run_job_with_file_objects(self, survey_id, files, previous_job_id=None,params=None):
+
         payload = {'survey_id': survey_id}
         if params:
             payload.update(params)
@@ -115,12 +113,19 @@ class Thematic(object):
 
     def run_job(self, survey_id, csv_filename, themes_file=None, previous_job_id=None,params=None):
         with open(csv_filename, 'rb') as csv_file_obj:
+            files = {'csv_file': csv_file_obj}
             if themes_file:
                 with open(themes_file, 'rb') as themes_file_obj:
-                    return self.run_job_with_file_object(survey_id, csv_file_obj, themes_file_obj=themes_file_obj, previous_job_id=previous_job_id,params=params)
+                    files['themes_file'] = themes_file_obj
+                    return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id,params=params)
             else:
-                return self.run_job_with_file_object(survey_id, csv_file_obj, previous_job_id=previous_job_id,params=params)
+                return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id,params=params)
         return None
+
+    def create_job_from_artifacts(self, survey_id, artifacts_filename):
+        with open(artifacts_filename, 'rb') as artifacts_file_obj:
+            files = {'artifacts_file': artifacts_file_obj}
+            return self.run_job_with_file_object(survey_id, files)
 
     def cancel_job(self, job_id):
         r = requests.post(self.base_url+"/job/"+job_id+"/cancel",
@@ -382,16 +387,12 @@ class Thematic(object):
         url = self.base_url+"/job/"+job_id+"/adjectives/"
         return self._internal_request_to_text_or_file(url, file_obj)
 
-    def retrieve_excel(self, job_id, column, nps_column):
-        r = requests.get(self.base_url+"/job/"+job_id+"/excel/"+str(column),
-                         headers={'X-API-Authentication': self.api_key},
-                         params={'nps_column': nps_column}
-                         )
-        if r.status_code != 200:
-            log.error("Retrieve excel failed:"+r.text)
-            return None
-        return r.content
-
+    def retrieve_artifacts(self, job_id, file_obj=None):
+        if file_obj is None:
+            raise Exception("Artifacts must be retrieved into a file object")
+        url = self.base_url+"/job/"+job_id+"/artifacts/"
+        return self._internal_request_to_text_or_file(url, file_obj)
+        
     def retrieve_language_model(self, job_id):
         r = requests.get(self.base_url+"/job/"+job_id+"/language_model/",
                          headers={'X-API-Authentication': self.api_key}
