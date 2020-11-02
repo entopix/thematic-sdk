@@ -338,7 +338,9 @@ class Thematic(object):
             r = requests.get(
                 url, headers={'X-API-Authentication': self.api_key}, stream=True)
             if r.status_code != 200:
-                return False
+                log.error('Failed to retrieve. Code {} message {}'.format(
+                    r.status_code, r.text))
+                return None
             for chunk in r.iter_content(chunk_size=512):
                 if chunk:  # filter out keep-alive new chunks
                     file_obj.write(chunk)
