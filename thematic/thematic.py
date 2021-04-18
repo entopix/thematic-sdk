@@ -8,6 +8,9 @@ import requests
 
 log = logging.getLogger(__name__)
 
+LOG_REQUESTS = False
+def set_log_requests(log_requests):
+    LOG_REQUESTS = log_requests
 
 class Thematic(object):
     num_retries = 5000
@@ -48,7 +51,8 @@ class Thematic(object):
         if output_format:
             payload["output_format"] = output_format
         url = self.base_url + "/create_survey"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.post(url, headers={"X-API-Authentication": self.api_key}, data=payload)
 
         try:
@@ -78,7 +82,8 @@ class Thematic(object):
         if output_format:
             payload["output_format"] = output_format
         url = self.base_url + "/survey/{}".format(survey_id)
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.put(url, headers={"X-API-Authentication": self.api_key}, data=payload)
 
         try:
@@ -93,7 +98,8 @@ class Thematic(object):
 
     def get_survey_details(self, survey_id):
         url = self.base_url + "/survey/{}".format(survey_id)
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
 
         try:
@@ -114,7 +120,8 @@ class Thematic(object):
         if previous_job_id:
             payload["previous_job_id"] = previous_job_id
         url = self.base_url + "/create_job"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.post(url, headers={"X-API-Authentication": self.api_key}, files=files, data=payload)
         try:
             response = json.loads(r.text)
@@ -145,14 +152,16 @@ class Thematic(object):
 
     def cancel_job(self, job_id):
         url = self.base_url + "/job/" + job_id + "/cancel"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.post(url, headers={"X-API-Authentication": self.api_key})
         response = r.text
         return response
 
     def delete_job(self, job_id):
         url = self.base_url + "/job/" + job_id + "/delete"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
         response = r.text
         return response
@@ -252,7 +261,8 @@ class Thematic(object):
 
     def get_job_details(self, job_id):
         url = self.base_url + "/job/" + job_id + "/info"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
         if r.status_code != 200:
             raise Exception("get_job_status: Bad Response: {} {}".format(r.status_code, r.text))
@@ -271,7 +281,8 @@ class Thematic(object):
 
     def get_job_logs(self, job_id):
         url = self.base_url + "/job/" + job_id + "/log"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
         response = r.text
         return response
@@ -336,7 +347,8 @@ class Thematic(object):
             payload["job_type"] = job_type
 
         url = self.base_url + "/jobs/"
-        log.info("Calling URL: {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key}, params=payload)
         if r.status_code != 200:
             return None
@@ -350,7 +362,8 @@ class Thematic(object):
         return response["data"]["jobs"]
 
     def _internal_request_to_text_or_file(self, url, file_obj):
-        log.info("Calling URL {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         if file_obj:
             r = requests.get(url, headers={"X-API-Authentication": self.api_key}, stream=True)
             if r.status_code != 200:
@@ -370,7 +383,8 @@ class Thematic(object):
 
     def retrieve_csv(self, job_id, file_obj=None):
         url = self.base_url + "/job/" + job_id + "/csv/"
-        log.info("Calling URL {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         return self._internal_request_to_text_or_file(url, file_obj)
 
     def retrieve_incremental_csv(self, job_id, file_obj=None):
@@ -409,7 +423,8 @@ class Thematic(object):
 
     def retrieve_language_model(self, job_id):
         url = self.base_url + "/job/" + job_id + "/language_model/"
-        log.info("Calling URL {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
         if r.status_code != 200:
             return None
@@ -417,7 +432,8 @@ class Thematic(object):
 
     def retrieve_parameters(self, job_id):
         url = self.base_url + "/job/" + job_id + "/params"
-        log.info("Calling URL {}".format(url))
+        if LOG_REQUESTS:
+            log.info("Calling URL: {}".format(url))
         r = requests.get(url, headers={"X-API-Authentication": self.api_key})
 
         try:
