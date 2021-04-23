@@ -9,8 +9,11 @@ import requests
 log = logging.getLogger(__name__)
 
 LOG_REQUESTS = False
+
+
 def set_log_requests(log_requests):
     LOG_REQUESTS = log_requests
+
 
 class Thematic(object):
     num_retries = 5000
@@ -182,10 +185,10 @@ class Thematic(object):
             raise Exception("run_incremental_update: Failed to create job (" + response["error"]["message"] + ")")
         return response
 
-    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, disambiguation_columns=None):
+    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None):
         files = {"csv_file": csv_file_obj}
         payload = {"survey_id": survey_id, "job_type": "apply"}
-        if disambiguation_columns is not None:
+        if not replace_data:
             payload["job_type"] = "incremental_data"
             payload["updated_parameters"] = json.dumps({"disambiguation_columns": disambiguation_columns})
         if previous_job_id:
@@ -196,9 +199,14 @@ class Thematic(object):
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
 
+    def run_replace_data(self, survey_id, csv_filename, previous_job_id):
+        with open(csv_filename, "rb") as csv_file_obj:
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, True)
+        return None
+
     def run_incremental_update(self, survey_id, csv_filename, previous_job_id, disambiguation_columns=None):
         with open(csv_filename, "rb") as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, disambiguation_columns=disambiguation_columns)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, False, disambiguation_columns=disambiguation_columns)
         return None
 
     def run_translations(self, survey_id, csv_filename, columns=None):
