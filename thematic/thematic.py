@@ -153,6 +153,17 @@ class Thematic(object):
             files = {"artifacts_file": artifacts_file_obj}
             return self.run_job_with_file_object(survey_id, files)
 
+    def delete_rows(self, survey_id, delete_rows_sort_file, previous_job_id, disambiguation_columns):
+
+        params = {
+            "job_type": "deleterows", 
+            "updated_parameters":json.dumps({"disambiguation_columns": disambiguation_columns})
+        }
+
+        with open(delete_rows_sort_file, "rb") as delete_rows_sort_file_obj:
+            files = {"delete_rows": delete_rows_sort_file_obj}
+            return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id, params=params)
+
     def cancel_job(self, job_id):
         url = self.base_url + "/job/" + job_id + "/cancel"
         if LOG_REQUESTS:
