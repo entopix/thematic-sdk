@@ -161,7 +161,7 @@ class Thematic(object):
         }
 
         with open(delete_rows_sort_file, "rb") as delete_rows_sort_file_obj:
-            files = {"delete_rows": delete_rows_sort_file_obj}
+            files = {"csv_file": delete_rows_sort_file_obj}
             return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id, params=params)
 
     def cancel_job(self, job_id):
