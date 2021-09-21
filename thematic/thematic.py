@@ -231,48 +231,65 @@ class Thematic(object):
             raise Exception("run_translations: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_concepts(self, concepts_filename, previous_job_id):
+    def configure_concepts(self, concepts_filename, previous_job_id, data_filename=None):
         files = {"concepts_file": open(concepts_filename, "rb")}
+        if data_filename:
+            files["data_file"] = open(data_filename, "rb")
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/concepts", files, {})
 
         if "jobid" not in response["data"]:
             raise Exception("configure_concepts: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id):
+    def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id, data_filename=None):
         files = {"nouns_file": open(nouns_filename, "rb"), "verbs_file": open(verbs_filename, "rb"), "adjectives_file": open(adjectives_filename, "rb")}
+        if data_filename:
+            files["data_file"] = open(data_filename, "rb")
+
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/word_frequencies", files, {})
 
         if "jobid" not in response["data"]:
             raise Exception("configure_word_frequencies: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_themes(self, themes_filename, previous_job_id):
+    def configure_themes(self, themes_filename, previous_job_id, data_filename=None):
         files = {"themes_file": open(themes_filename, "rb")}
+        if data_filename:
+            files["data_file"] = open(data_filename, "rb")
+
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/themes", files, {})
 
         if "jobid" not in response["data"]:
             raise Exception("configure_themes: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_language_model(self, language_model_filename, previous_job_id):
+    def configure_language_model(self, language_model_filename, previous_job_id, data_filename=None):
         files = {"model_file": open(language_model_filename, "rb")}
+        if data_filename:
+            files["data_file"] = open(data_filename, "rb")
+
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/language_model", files, {})
 
         if "jobid" not in response["data"]:
             raise Exception("configure_language_model: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_stopwords(self, stopwords_filename, previous_job_id):
+    def configure_stopwords(self, stopwords_filename, previous_job_id, data_filename=None):
         files = {"stopwords_file": open(stopwords_filename, "rb")}
+        if data_filename:
+            files["data_file"] = open(data_filename, "rb")
+
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/stopwords", files, {})
 
         if "jobid" not in response["data"]:
             raise Exception("configure_stopwords: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_parameters(self, parameters, previous_job_id):
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/params", None, parameters)
+    def configure_parameters(self, parameters, previous_job_id, data_filename=None):
+        files = None
+        if data_filename:
+            files = {"data_file": open(data_filename, "rb")}
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/params", files, parameters)
 
         if "jobid" not in response["data"]:
             raise Exception("configure_parameters: Bad Response")
