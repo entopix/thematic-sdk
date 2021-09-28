@@ -196,8 +196,10 @@ class Thematic(object):
             raise Exception("run_incremental_update: Failed to create job (" + response["error"]["message"] + ")")
         return response
 
-    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None):
+    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None, themes_filename=None):
         files = {"csv_file": csv_file_obj}
+        if themes_filename:
+            files["themes_file"] = open(themes_filename, "rb")
         payload = {"survey_id": survey_id, "job_type": "apply"}
         if not replace_data:
             payload["job_type"] = "incremental_data"
@@ -206,13 +208,16 @@ class Thematic(object):
             payload["previous_job_id"] = previous_job_id
         response = self._run_post_request_with_json_response(self.base_url + "/create_job", files, payload)
 
+        if themes_filename:
+            files["themes_file"].close()
+
         if "jobid" not in response["data"]:
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
 
-    def run_replace_data(self, survey_id, csv_filename, previous_job_id):
+    def run_replace_data(self, survey_id, csv_filename, previous_job_id, themes_filename=None):
         with open(csv_filename, "rb") as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, True)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, True, themes_filename=themes_filename)
         return None
 
     def run_incremental_update(self, survey_id, csv_filename, previous_job_id, disambiguation_columns=None):
@@ -226,6 +231,7 @@ class Thematic(object):
         if columns:
             payload["job_options"] = json.dumps({"columns": columns})
         response = self._run_post_request_with_json_response(self.base_url + "/create_job", files, payload)
+        files["csv_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("run_translations: Bad Response")
@@ -238,6 +244,11 @@ class Thematic(object):
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/concepts", files, {})
+        files["concepts_file"].close()
+        if "csv_file" in files:
+            files["csv_file"].close()
+        if "themes_file" in files:
+            files["themes_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("configure_concepts: Bad Response")
@@ -251,6 +262,14 @@ class Thematic(object):
             files["themes_file"] = open(themes_filename, "rb")
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/word_frequencies", files, {})
+        
+        files["nouns_file"].close()
+        files["verbs_file"].close()
+        files["adjectives_file"].close()
+        if "csv_file" in files:
+            files["csv_file"].close()
+        if "themes_file" in files:
+            files["themes_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("configure_word_frequencies: Bad Response")
@@ -262,6 +281,10 @@ class Thematic(object):
             files["csv_file"] = open(data_filename, "rb")
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/themes", files, {})
+
+        files["themes_file"].close()
+        if "csv_file" in files:
+            files["csv_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("configure_themes: Bad Response")
@@ -276,6 +299,12 @@ class Thematic(object):
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/language_model", files, {})
 
+        files["model_file"].close()
+        if "csv_file" in files:
+            files["csv_file"].close()
+        if "themes_file" in files:
+            files["themes_file"].close()
+
         if "jobid" not in response["data"]:
             raise Exception("configure_language_model: Bad Response")
         return response["data"]["jobid"]
@@ -288,6 +317,12 @@ class Thematic(object):
             files["themes_file"] = open(themes_filename, "rb")
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/stopwords", files, {})
+
+        files["stopwords_file"].close()
+        if "csv_file" in files:
+            files["csv_file"].close()
+        if "themes_file" in files:
+            files["themes_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("configure_stopwords: Bad Response")
@@ -303,6 +338,11 @@ class Thematic(object):
             files = None
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/params", files, parameters)
+
+        if "csv_file" in files:
+            files["csv_file"].close()
+        if "themes_file" in files:
+            files["themes_file"].close()
 
         if "jobid" not in response["data"]:
             raise Exception("configure_parameters: Bad Response")
