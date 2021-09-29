@@ -155,10 +155,7 @@ class Thematic(object):
 
     def delete_rows(self, survey_id, delete_rows_sort_file, previous_job_id, disambiguation_columns):
 
-        params = {
-            "job_type": "deleterows", 
-            "updated_parameters":json.dumps({"disambiguation_columns": disambiguation_columns})
-        }
+        params = {"job_type": "deleterows", "updated_parameters": json.dumps({"disambiguation_columns": disambiguation_columns})}
 
         with open(delete_rows_sort_file, "rb") as delete_rows_sort_file_obj:
             files = {"csv_file": delete_rows_sort_file_obj}
@@ -196,7 +193,9 @@ class Thematic(object):
             raise Exception("run_incremental_update: Failed to create job (" + response["error"]["message"] + ")")
         return response
 
-    def run_incremental_update_with_file_object(self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None, themes_filename=None):
+    def run_incremental_update_with_file_object(
+        self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None, themes_filename=None
+    ):
         files = {"csv_file": csv_file_obj}
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
@@ -262,7 +261,7 @@ class Thematic(object):
             files["themes_file"] = open(themes_filename, "rb")
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/word_frequencies", files, {})
-        
+
         files["nouns_file"].close()
         files["verbs_file"].close()
         files["adjectives_file"].close()
@@ -334,8 +333,6 @@ class Thematic(object):
             files["data_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
-        if files == {}:
-            files = None
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/params", files, parameters)
 
