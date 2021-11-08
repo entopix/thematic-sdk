@@ -194,12 +194,12 @@ class Thematic(object):
         return response
 
     def run_incremental_update_with_file_object(
-        self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None, themes_filename=None
+        self, survey_id, csv_file_obj, previous_job_id, replace_data, disambiguation_columns=None, themes_filename=None, job_options={}
     ):
         files = {"csv_file": csv_file_obj}
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
-        payload = {"survey_id": survey_id, "job_type": "apply"}
+        payload = {"survey_id": survey_id, "job_type": "apply", "job_options": json.dumps(job_options)}
         if not replace_data:
             payload["job_type"] = "incremental_data"
             payload["updated_parameters"] = json.dumps({"disambiguation_columns": disambiguation_columns})
@@ -214,21 +214,22 @@ class Thematic(object):
             raise Exception("run_incremental_update: Bad Response")
         return response["data"]["jobid"]
 
-    def run_replace_data(self, survey_id, csv_filename, previous_job_id, themes_filename=None):
+    def run_replace_data(self, survey_id, csv_filename, previous_job_id, themes_filename=None, job_options={}):
         with open(csv_filename, "rb") as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, True, themes_filename=themes_filename)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, True, themes_filename=themes_filename, job_options=job_options)
         return None
 
-    def run_incremental_update(self, survey_id, csv_filename, previous_job_id, disambiguation_columns=None):
+    def run_incremental_update(self, survey_id, csv_filename, previous_job_id, disambiguation_columns=None, job_options={}):
         with open(csv_filename, "rb") as csv_file_obj:
-            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, False, disambiguation_columns=disambiguation_columns)
+            return self.run_incremental_update_with_file_object(survey_id, csv_file_obj, previous_job_id, False, disambiguation_columns=disambiguation_columns, job_options=job_options)
         return None
 
-    def run_translations(self, survey_id, csv_filename, columns=None):
+    def run_translations(self, survey_id, csv_filename, columns=None, job_options={}):
         files = {"csv_file": open(csv_filename, "rb")}
         payload = {"survey_id": survey_id, "job_type": "translate"}
         if columns:
-            payload["job_options"] = json.dumps({"columns": columns})
+            job_options["columns"] = columns
+        payload["job_options"] = json.dumps(job_options)
         response = self._run_post_request_with_json_response(self.base_url + "/create_job", files, payload)
         files["csv_file"].close()
 
@@ -236,13 +237,13 @@ class Thematic(object):
             raise Exception("run_translations: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_concepts(self, concepts_filename, previous_job_id, data_filename=None, themes_filename=None):
+    def configure_concepts(self, concepts_filename, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {"concepts_file": open(concepts_filename, "rb")}
         if data_filename:
             files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/concepts", files, {})
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/concepts", files, {"job_options":json.dumps(job_options)})
         files["concepts_file"].close()
         if "csv_file" in files:
             files["csv_file"].close()
@@ -253,14 +254,14 @@ class Thematic(object):
             raise Exception("configure_concepts: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id, data_filename=None, themes_filename=None):
+    def configure_word_frequencies(self, nouns_filename, verbs_filename, adjectives_filename, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {"nouns_file": open(nouns_filename, "rb"), "verbs_file": open(verbs_filename, "rb"), "adjectives_file": open(adjectives_filename, "rb")}
         if data_filename:
             files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
 
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/word_frequencies", files, {})
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/word_frequencies", files, {"job_options":json.dumps(job_options)})
 
         files["nouns_file"].close()
         files["verbs_file"].close()
@@ -274,12 +275,12 @@ class Thematic(object):
             raise Exception("configure_word_frequencies: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_themes(self, themes_filename, previous_job_id, data_filename=None):
+    def configure_themes(self, themes_filename, previous_job_id, data_filename=None, job_options={}):
         files = {"themes_file": open(themes_filename, "rb")}
         if data_filename:
             files["csv_file"] = open(data_filename, "rb")
 
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/themes", files, {})
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/themes", files, {"job_options":json.dumps(job_options)})
 
         files["themes_file"].close()
         if "csv_file" in files:
@@ -289,14 +290,14 @@ class Thematic(object):
             raise Exception("configure_themes: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_language_model(self, language_model_filename, previous_job_id, data_filename=None, themes_filename=None):
+    def configure_language_model(self, language_model_filename, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {"model_file": open(language_model_filename, "rb")}
         if data_filename:
             files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
 
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/language_model", files, {})
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/language_model", files, {"job_options":json.dumps(job_options)})
 
         files["model_file"].close()
         if "csv_file" in files:
@@ -308,14 +309,14 @@ class Thematic(object):
             raise Exception("configure_language_model: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_stopwords(self, stopwords_filename, previous_job_id, data_filename=None, themes_filename=None):
+    def configure_stopwords(self, stopwords_filename, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {"stopwords_file": open(stopwords_filename, "rb")}
         if data_filename:
             files["data_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
 
-        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/stopwords", files, {})
+        response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/stopwords", files, {"job_options":json.dumps(job_options)})
 
         files["stopwords_file"].close()
         if "csv_file" in files:
