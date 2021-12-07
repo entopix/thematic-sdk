@@ -312,7 +312,7 @@ class Thematic(object):
     def configure_stopwords(self, stopwords_filename, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {"stopwords_file": open(stopwords_filename, "rb")}
         if data_filename:
-            files["data_file"] = open(data_filename, "rb")
+            files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
 
@@ -331,7 +331,7 @@ class Thematic(object):
     def configure_parameters(self, parameters, previous_job_id, data_filename=None, themes_filename=None):
         files = {}
         if data_filename:
-            files["data_file"] = open(data_filename, "rb")
+            files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
 
