@@ -173,10 +173,11 @@ class Thematic(object):
                 return self.run_job_with_file_object(survey_id, files, previous_job_id=previous_job_id, params=params)
         return None
 
-    def create_job_from_artifacts(self, survey_id, artifacts_filename):
+    def create_job_from_artifacts(self, survey_id, artifacts_filename, job_options={}):
+        params = {"job_options": json.dumps(job_options)}
         with open(artifacts_filename, "rb") as artifacts_file_obj:
             files = {"artifacts_file": artifacts_file_obj}
-            return self.run_job_with_file_object(survey_id, files)
+            return self.run_job_with_file_object(survey_id, files, params=params)
 
     def delete_rows(self, survey_id, delete_rows_sort_file, previous_job_id, disambiguation_columns):
 
@@ -353,12 +354,14 @@ class Thematic(object):
             raise Exception("configure_stopwords: Bad Response")
         return response["data"]["jobid"]
 
-    def configure_parameters(self, parameters, previous_job_id, data_filename=None, themes_filename=None):
+    def configure_parameters(self, parameters, previous_job_id, data_filename=None, themes_filename=None, job_options={}):
         files = {}
         if data_filename:
             files["csv_file"] = open(data_filename, "rb")
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
+        parameters["job_options"] = json.dumps(job_options)
+            
 
         response = self._run_post_request_with_json_response(self.base_url + "/job/" + previous_job_id + "/params", files, parameters)
 
