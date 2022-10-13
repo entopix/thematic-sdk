@@ -72,7 +72,7 @@ class Thematic(object):
         self.login_cookie = r.headers["Set-cookie"]
         
     def get_current_user(self):
-        r = requests.get(self.base_url + "/current_user", data=payload)
+        r = requests.get(self.base_url + "/current_user")
         try:
             response = json.loads(r.text)
         except Exception:
