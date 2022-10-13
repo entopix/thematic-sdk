@@ -70,6 +70,16 @@ class Thematic(object):
             raise Exception("retrieve_apikey: Failed to login (" + response["error"]["message"] + ")")
         self.api_key = response["data"]["api_key"]
         self.login_cookie = r.headers["Set-cookie"]
+        
+    def get_current_user(self):
+        r = requests.get(self.base_url + "/current_user", data=payload)
+        try:
+            response = json.loads(r.text)
+        except Exception:
+            log.error("Bad Response, has status {} and body {}".format(r.status_code, r.text))
+            raise Exception("retrieve_apikey: Bad Response")
+        return response["data"]
+
 
     def create_survey(self, name, total_columns, columns, has_header, modelset_id=None, output_format=None):
         payload = {"name": name, "total_columns": total_columns, "columns": json.dumps(columns), "has_header": has_header}
