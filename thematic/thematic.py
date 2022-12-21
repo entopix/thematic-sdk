@@ -72,12 +72,15 @@ class Thematic(object):
         self.login_cookie = r.headers["Set-cookie"]
         
     def get_current_user(self):
-        r = requests.get(self.base_url + "/current_user")
+        r = requests.get(self.base_url + "/current_user", headers={"X-API-Authentication": self.api_key})
+        if r.status_code != 200:
+            log.error("Bad Response, has status {} and body {}".format(r.status_code, r.text))
+            raise Exception("get_current_user: Bad Response")
         try:
             response = json.loads(r.text)
         except Exception:
             log.error("Bad Response, has status {} and body {}".format(r.status_code, r.text))
-            raise Exception("retrieve_apikey: Bad Response")
+            raise Exception("get_current_user: Bad Response")
         return response["data"]
 
 
