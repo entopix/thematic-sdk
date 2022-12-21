@@ -75,6 +75,8 @@ class Thematic(object):
         r = requests.get(self.base_url + "/current_user", headers={"X-API-Authentication": self.api_key})
         if r.status_code != 200:
             log.error("Bad Response, has status {} and body {}".format(r.status_code, r.text))
+            if r.status_code == 403 and "No User found for this key" in r.text:
+                raise LookupError()
             raise Exception("get_current_user: Bad Response")
         try:
             response = json.loads(r.text)
