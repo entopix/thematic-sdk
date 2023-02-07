@@ -582,8 +582,10 @@ class Thematic(object):
             raise Exception("retrieve_parameters: Failed to get job parameters (" + response["error"]["message"] + ")")
         return response["data"]
 
-    def discover_new_themes(self, job_id, csv_filename, themes_filename=None):
+    def discover_new_themes(self, job_id, csv_filename, themes_filename=None, exclude_single_word_themes=False):
         payload = {"job_id": job_id}
+        if exclude_single_word_themes:
+            payload["limit_single_words"] = 0
         files = {"csv_file": open(csv_filename, "rb")}
         if themes_filename:
             files["themes_file"] = open(themes_filename, "rb")
